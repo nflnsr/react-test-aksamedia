@@ -16,7 +16,7 @@ type RegisterInputType = {
 function Register() {
   const { mutate } = useMutation({
     mutationFn: async (data: RegisterInputType) =>
-      await axiosInstance.post("/api/admin", data),
+      await axiosInstance.post("/admin", data),
   });
 
   const {
