@@ -1,9 +1,11 @@
 import { Layout } from "@/components/layout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { InputType, Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "@/lib/utils";
 import { useForm } from "react-hook-form";
+import { AxiosError } from "axios";
+import { ResponseAPI } from "@/types/response-api";
 
 type RegisterInputType = {
   name: string;
@@ -14,9 +16,18 @@ type RegisterInputType = {
 };
 
 function Register() {
-  const { mutate } = useMutation({
+  const navigate = useNavigate();
+
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data: RegisterInputType) =>
       await axiosInstance.post("/admin", data),
+    onSuccess: () => {
+      alert("Register berhasil, silahkan login");
+      navigate("/login");
+    },
+    onError: (error: AxiosError<ResponseAPI>) => {
+      alert(error?.response?.data.message);
+    },
   });
 
   const {
@@ -32,39 +43,6 @@ function Register() {
       password: "",
     },
   });
-
-  const input: InputType[] = [
-    {
-      inputFor: "name",
-      type: "text",
-      placeholder: "Jhon Doe",
-      required: true,
-    },
-    {
-      inputFor: "username",
-      type: "text",
-      placeholder: "jhondoe",
-      required: true,
-    },
-    {
-      inputFor: "phone",
-      type: "text",
-      placeholder: "08123456789",
-      required: true,
-    },
-    {
-      inputFor: "email",
-      type: "email",
-      placeholder: "jhondoe@gmail.com",
-      required: true,
-    },
-    {
-      inputFor: "password",
-      type: "password",
-      placeholder: "password",
-      required: true,
-    },
-  ];
 
   const onSubmit = (data: RegisterInputType) => {
     console.log(data);
@@ -84,15 +62,24 @@ function Register() {
           <h1 className="text-center text-3xl font-semibold">Register</h1>
           {input.map((item) => (
             <div key={item.inputFor} className="flex flex-col gap-1">
-              <Input {...register(item.inputFor as keyof RegisterInputType)} {...item} />
+              <Input
+                {...register(item.inputFor as keyof RegisterInputType)}
+                {...item}
+              />
             </div>
           ))}
           <button
             type="submit"
             className="mt-1 w-64 rounded-lg bg-blue-400 py-2 text-lg font-semibold text-white disabled:opacity-55"
-            // disabled={isPending}
+            disabled={isPending}
           >
-            Register
+            {isPending ? (
+              <span className="flex items-center justify-center">
+                <div className="mr-3 size-7 animate-spin rounded-full border-b-2 border-t-2 border-white" />
+              </span>
+            ) : (
+              "Register"
+            )}
           </button>
           <p>
             have an account?{" "}
@@ -106,6 +93,37 @@ function Register() {
   );
 }
 
-
+const input: InputType[] = [
+  {
+    inputFor: "name",
+    type: "text",
+    placeholder: "Jhon Doe",
+    required: true,
+  },
+  {
+    inputFor: "username",
+    type: "text",
+    placeholder: "jhondoe",
+    required: true,
+  },
+  {
+    inputFor: "phone",
+    type: "text",
+    placeholder: "08123456789",
+    required: true,
+  },
+  {
+    inputFor: "email",
+    type: "email",
+    placeholder: "jhondoe@gmail.com",
+    required: true,
+  },
+  {
+    inputFor: "password",
+    type: "password",
+    placeholder: "password",
+    required: true,
+  },
+];
 
 export default Register;
